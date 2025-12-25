@@ -9,6 +9,9 @@
     "paths": {
       "@kanban/application": [
         "packages/application/src"
+      ],
+      "@kanban/memory": [
+        "packages/memory/src"
       ]
     }
   }

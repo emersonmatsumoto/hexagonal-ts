@@ -2,7 +2,6 @@
   "name": "@kanban/application",
   "version": "0.0.1",
   "scripts": {
-    "build": "tsc -b",
-    "dev": "bun run src/index.ts"
+    "build": "tsc -b"
   }
 }
