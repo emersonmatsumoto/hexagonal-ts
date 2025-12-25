@@ -1,7 +1,3 @@
-export class Board {
-  constructor(public name: string) {}
-
-  info() {
-    return `Board: ${this.name}`;
-  }
-}
+export * from "./board";
+export * from "./column";
+export * from "./card";
