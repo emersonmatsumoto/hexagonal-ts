@@ -1,0 +1,10 @@
+{
+  "name": "@kanban/memory",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@kanban/application": "workspace:*"
+  }
+}

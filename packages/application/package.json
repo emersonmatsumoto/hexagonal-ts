@@ -4,8 +4,5 @@
   "scripts": {
     "build": "tsc -b",
     "dev": "bun run src/index.ts"
-  },
-  "dependencies": {
-    "@kanban/domain": "workspace:*"
   }
 }
