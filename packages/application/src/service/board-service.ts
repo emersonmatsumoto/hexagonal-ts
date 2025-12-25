@@ -2,10 +2,10 @@ import { Board, Column, Card } from "../domain";
 import { BoardRepository } from "../port/board-repository";
 
 export class BoardService {
-  constructor(private repo: BoardRepository) {}
+  constructor(private repo: BoardRepository) { }
 
-  async createBoard(id: string, name: string): Promise<Board> {
-    const board = new Board(id, name);
+  async createBoard(name: string): Promise<Board> {
+    const board = new Board(crypto.randomUUID(), name);
     await this.repo.save(board);
     return board;
   }

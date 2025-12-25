@@ -1,0 +1,12 @@
+{
+  "name": "@kanban/api",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "bun run src/server.ts"
+  },
+  "dependencies": {
+    "fastify": "^4.25.0",
+    "@kanban/application": "workspace:*",
+    "@kanban/memory": "workspace:*"
+  }
+}
