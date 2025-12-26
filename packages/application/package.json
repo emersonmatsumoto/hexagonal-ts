@@ -1,7 +1,6 @@
 {
   "name": "@kanban/application",
   "version": "0.0.1",
-  "scripts": {
-    "build": "tsc -b"
-  }
+  "type": "module",
+  "main": "src/index.ts"
 }
