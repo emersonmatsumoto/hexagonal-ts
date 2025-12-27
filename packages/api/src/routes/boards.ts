@@ -1,9 +1,12 @@
-import { FastifyPluginAsync } from "fastify";
-import { InMemoryBoardRepository } from "@kanban/memory";
+import { type FastifyPluginAsync } from "fastify";
+// import { InMemoryBoardRepository } from "@kanban/memory";
+import { MongoBoardRepository, startRepository } from "@kanban/mongo";
 import { Board, BoardService } from "@kanban/application";
 
+
 export const boardRoutes: FastifyPluginAsync = async (fastify) => {
-  const repo = new InMemoryBoardRepository();
+  // const repo = new InMemoryBoardRepository();
+  const repo = await startRepository();
   const service = new BoardService(repo);
 
   // Criar um novo board

@@ -3,7 +3,12 @@ import { Card } from "./card";
 export class Column {
   private cards: Card[] = [];
 
-  constructor(public id: string, public name: string) {}
+  constructor(public name: string, public id?: string) { }
+
+  assignId(id: string) {
+    if (this.id) throw new Error("ID da Coluna já atribuído.");
+    this.id = id;
+  }
 
   addCard(card: Card) {
     this.cards.push(card);
@@ -14,6 +19,6 @@ export class Column {
   }
 
   getCards(): Card[] {
-    return this.cards;
+    return [...this.cards];
   }
 }
