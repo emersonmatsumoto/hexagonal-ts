@@ -1,4 +1,4 @@
-import { Board, BoardRepository } from "@kanban/application";
+import { Board, type BoardRepository } from "@kanban/application";
 
 export class InMemoryBoardRepository implements BoardRepository {
   private boards: Map<string, Board> = new Map();
@@ -9,10 +9,10 @@ export class InMemoryBoardRepository implements BoardRepository {
     return Promise.resolve();
   }
 
-  getById(id: string): Promise<Board | undefined> {
+  async getById(id: string): Promise<Board | null> {
     const board = this.boards.get(id);
 
-    return Promise.resolve(board);
+    return board ?? null;
   }
 
   getAll(): Promise<Board[]> {

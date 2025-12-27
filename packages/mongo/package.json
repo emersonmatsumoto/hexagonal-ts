@@ -1,0 +1,9 @@
+{
+  "name": "@kanban/mongo",
+  "version": "0.0.1",
+  "dependencies": {
+    "@kanban/application": "workspace:*",
+    "mongodb": "^7.0.0"
+  },
+  "main": "src/index.ts"
+}

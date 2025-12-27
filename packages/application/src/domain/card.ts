@@ -1,5 +1,10 @@
 export class Card {
-  constructor(public id: string, public title: string, public description?: string) {}
+  constructor(public title: string, public description?: string, public id?: string) {}
+
+  assignId(id: string) {
+    if (this.id) throw new Error("ID do Board já atribuído.");
+    this.id = id;
+  }
 
   updateTitle(newTitle: string) {
     if (!newTitle) throw new Error("Title cannot be empty");
