@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "app": "bun --filter @kanban/api dev"
+    "app": "bun --env-file=.env.local --filter @kanban/api dev"
   },
   "keywords": [],
   "author": "",

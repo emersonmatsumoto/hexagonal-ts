@@ -8,8 +8,8 @@ fastify.register(boardRoutes, { prefix: "/boards" });
 
 const start = async () => {
   try {
-    await fastify.listen({ port: 3000, host: '0.0.0.0' });
-    console.log("API rodando em http://localhost:3000");
+    const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+    await fastify.listen({ port, host: '0.0.0.0' });
   } catch (err) {
     fastify.log.child(err);
     process.exit(1);

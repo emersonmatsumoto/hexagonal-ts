@@ -42,11 +42,19 @@ export class MongoBoardRepository implements BoardRepository {
 }
 
 export async function startRepository() {
-  const uri = "mongodb://localhost:27017";
+  const uri = process.env.MONGO_URL;
+  const username = process.env.MONGO_USERNAME;
+  const password = process.env.MONGO_PASSWORD;
+
+  if (!uri || !username || !password) {
+    console.log("erro")
+    throw new Error("Erro: Variáveis de ambiente do MongoDB não configuradas.")
+  }
+
   const client = new MongoClient(uri, {
     auth: {
-      username: "root",
-      password: "example"
+      username,
+      password,
     }
   });
 
