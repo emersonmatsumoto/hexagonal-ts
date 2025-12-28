@@ -5,29 +5,24 @@ import { Board, BoardService } from "@kanban/application";
 
 
 export const boardRoutes: FastifyPluginAsync = async (fastify) => {
-  // const repo = new InMemoryBoardRepository();
-  const repo = await startRepository();
-  const service = new BoardService(repo);
 
   // Criar um novo board
   fastify.post("/", async (request, reply) => {
     const { name } = request.body as { name: string };
-    const board = await service.createBoard(name);
+    const board = await fastify.data.boardService.createBoard(name);
     return board;
   });
 
   // Listar boards
   fastify.get("/", async () => {
-    return await repo.getAll();
+    return await fastify.data.boardService.listBoards();
   });
 
   // Adicionar coluna a board
   fastify.post("/:boardId/columns", async (request, reply) => {
     const { boardId } = request.params as { boardId: string };
     const { name } = request.body as { name: string };
-    const board = await repo.getById(boardId);
-    if (!board) return reply.status(404).send({ error: "Board not found" });
-    const column = await service.addColumn(board, name);
+    const column = await fastify.data.boardService.addColumn(boardId, name);
     return column;
   });
 
@@ -35,9 +30,7 @@ export const boardRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post("/:boardId/columns/:columnId/cards", async (request, reply) => {
     const { boardId, columnId } = request.params as { boardId: string, columnId: string };
     const { title, description } = request.body as { title: string, description?: string };
-    const board = await repo.getById(boardId);
-    if (!board) return reply.status(404).send({ error: "Board not found" });
-    const card = await service.addCard(board, columnId, title, description);
+    const card = await fastify.data.boardService.addCard(boardId, columnId, title, description);
     return card;
   });
 };
