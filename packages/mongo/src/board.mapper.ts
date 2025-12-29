@@ -1,62 +1,74 @@
 import { ObjectId } from "mongodb";
 import { Board, Card, Column } from "@kanban/application";
 
-// A interface que define como o dado vive no MongoDB
+export type CardDocument = {
+  _id: ObjectId;
+  title: string;
+  description?: string;
+}
+
+export type ColumnDocument = {
+  _id: ObjectId;
+  name: string;
+  cards: CardDocument[];
+}
+
 export interface BoardDocument {
   _id: ObjectId;
   name: string;
-  columns: {
-    _id: ObjectId;
-    name: string;
-    cards: {
-      _id: ObjectId;
-      title: string;
-      description?: string;
-    }[];
-  }[];
+  columns: ColumnDocument[];
 }
 
-export class BoardMapper {
-  /**
-   * Transforma o objeto de Domínio em um Documento do MongoDB
-   */
-  static toDocument(board: Board): BoardDocument {
-    return {
-      _id: board.id ? new ObjectId(board.id) : new ObjectId(),
-      name: board.name,
-      columns: board.getColumns().map(col => ({
-        _id: col.id ? new ObjectId(col.id) : new ObjectId(),
-        name: col.name,
-        cards: col.getCards().map(card => ({
-          _id: card.id ? new ObjectId(card.id) : new ObjectId(),
-          title: card.title,
-          description: card.description
-        }))
-      }))
-    };
-  }
-
-  /**
-   * Reconstrói o Domínio utilizando os métodos addColumn e addCard
-   */
-  static toDomain(doc: BoardDocument): Board {
-    // 1. Instancia o Board base (vazio)
-    let board = new Board(doc.name, doc._id.toHexString());
-
-    // 2. Percorre as colunas do documento
-    for (const colData of doc.columns) {
-      let column = new Column(colData.name, colData._id.toHexString());
-
-      // 3. Percorre os cards e usa addCard (cada chamada gera uma nova instância de Column)
-      for (const cardData of colData.cards) {
-        const card = new Card(cardData.title, cardData.description, cardData._id.toHexString());
-        column.addCard(card);
-      }
-
-      // 4. Adiciona a coluna completa ao Board (gera uma nova instância de Board)
-      board.addColumn(column);
-    }
-
-    return board;
+export function cardToDocument(card: Card): CardDocument {
+  return {
+    _id: card.id ? new ObjectId(card.id) : new ObjectId(),
+    title: card.title,
+    description: card.description
   }
 }
+
+export function columnToDocument(column: Column): ColumnDocument {
+  return {
+    _id: column.id ? new ObjectId(column.id) : new ObjectId(),
+    name: column.name,
+    cards: column.getCards().map(cardToDocument)
+  }
+}
+
+export function boardToDocument(board: Board): BoardDocument {
+  return {
+    _id: board.id ? new ObjectId(board.id) : new ObjectId(),
+    name: board.name,
+    columns: board.getColumns().map(columnToDocument)
+  }
+}
+
+export function cardToDomain(cardDocument: CardDocument): Card {
+  const card = new Card(cardDocument.title, cardDocument.description, cardDocument._id.toHexString());
+
+  return card
+}
+
+export function columnToDomain(columnDocument: ColumnDocument): Column {
+  let column = new Column(columnDocument.name, columnDocument._id.toHexString());
+
+  for (const cardDocument of columnDocument.cards) {
+    const card = cardToDomain(cardDocument);
+    column.addCard(card);
+  }
+
+  return column
+}
+
+export function boardToDomain(boardDocument: BoardDocument): Board {
+  let board = new Board(boardDocument.name, boardDocument._id.toHexString());
+
+  for (const columnDocument of boardDocument.columns) {
+    const column = columnToDomain(columnDocument)
+    board.addColumn(column);
+
+  }
+
+  return board;
+}
+
