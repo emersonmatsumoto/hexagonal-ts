@@ -4,6 +4,15 @@ import { type BoardRepository } from "../port/board-repository";
 export class BoardService {
   constructor(private repo: BoardRepository) { }
 
+  async getBoard(boardId: string): Promise<Board> {
+    const board = await this.repo.getById(boardId);
+    if (!board) {
+      throw new Error("Board not found");
+    }
+
+    return board
+  }
+
   async listBoards(): Promise<Board[]> {
     const boards = await this.repo.getAll();
     return boards
@@ -25,5 +34,18 @@ export class BoardService {
     const card = new Card(title, description);
     const newCard = await this.repo.saveCard(boardId, columnId, card);
     return newCard;
+  }
+
+  async moveCardBetweenColumns(boardId: string, cardId: string, fromColId: string, toColId: string) {
+    const board = await this.repo.getById(boardId);
+    if (!board) {
+      throw new Error("Board not found");
+    }
+
+    board.moveCard(cardId, fromColId, toColId);
+
+    await this.repo.save(board);
+
+    return board;
   }
 }

@@ -33,4 +33,13 @@ export const boardRoutes: FastifyPluginAsync = async (fastify) => {
     const card = await fastify.data.boardService.addCard(boardId, columnId, title, description);
     return card;
   });
+
+  // Mover card de coluna
+  fastify.patch("/:boardId/columns/:columnId/cards/:cardId", async (request, reply) => {
+    const { boardId, columnId, cardId } = request.params as { boardId: string, columnId: string, cardId: string };
+    const { newColumnId } = request.body as { newColumnId: string };
+    const board = await fastify.data.boardService.moveCardBetweenColumns(boardId, cardId, columnId, newColumnId);
+
+    return board;
+  });
 };
