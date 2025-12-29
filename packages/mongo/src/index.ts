@@ -1,13 +1,12 @@
 import { Collection, MongoClient, ObjectId } from "mongodb";
-import { type BoardRepository, Board, Column } from "@kanban/application";
-import { BoardMapper, type BoardDocument } from "./board.mapper";
-
+import { type BoardRepository, Board, Card, Column } from "@kanban/application";
+import { boardToDocument, boardToDomain, type BoardDocument, columnToDocument, columnToDomain, cardToDocument, cardToDomain } from "./board.mapper";
 
 export class MongoBoardRepository implements BoardRepository {
   constructor(private readonly collection: Collection<BoardDocument>) { }
 
   async save(board: Board): Promise<Board> {
-    const doc = BoardMapper.toDocument(board);
+    const doc = boardToDocument(board);
 
     await this.collection.updateOne(
       { _id: doc._id },
@@ -15,7 +14,63 @@ export class MongoBoardRepository implements BoardRepository {
       { upsert: true }
     );
 
-    return BoardMapper.toDomain(doc)
+    return boardToDomain(doc)
+  }
+
+  async saveColumn(boardId: string, column: Column): Promise<Column> {
+    const doc = columnToDocument(column);
+
+    const result = await this.collection.updateOne(
+      { _id: new ObjectId(boardId), "columns._id": doc._id },
+      { $set: { "columns.$": doc } }
+    );
+
+    if (result.matchedCount === 0) {
+      await this.collection.updateOne(
+        { _id: new ObjectId(boardId) },
+        { $push: { columns: doc } }
+      );
+    }
+
+    return columnToDomain(doc)
+  }
+
+  async saveCard(
+    boardId: string,
+    columnId: string,
+    card: Card,
+  ): Promise<Card> {
+    const doc = cardToDocument(card)
+    const result = await this.collection.updateOne(
+      {
+        _id: new ObjectId(boardId),
+        "columns._id": new ObjectId(columnId),
+        "columns.cards._id": doc._id
+      },
+      {
+        $set: { "columns.$[col].cards.$[card]": doc }
+      },
+      {
+        arrayFilters: [
+          { "col._id": new ObjectId(columnId) },
+          { "card._id": doc._id }
+        ]
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      await this.collection.updateOne(
+        {
+          _id: new ObjectId(boardId),
+          "columns._id": new ObjectId(columnId)
+        },
+        {
+          $push: { "columns.$.cards": doc }
+        }
+      );
+    }
+
+    return cardToDomain(doc)
   }
 
   async getById(id: string): Promise<Board | null> {
@@ -27,13 +82,13 @@ export class MongoBoardRepository implements BoardRepository {
       return null
     }
 
-    return BoardMapper.toDomain(doc)
+    return boardToDomain(doc)
   }
 
   async getAll(): Promise<Board[]> {
     const boards = await this.collection.find({}).toArray();
 
-    return boards.map(BoardMapper.toDomain)
+    return boards.map(boardToDomain)
   }
 
   async delete(id: string): Promise<void> {
@@ -59,14 +114,11 @@ export async function startRepository() {
   });
 
 
-  // 2. Conecta ao servidor
   await client.connect();
 
-  // 3. Seleciona o banco de dados e a coleção
   const db = client.db("kanban");
   const boardCollection = db.collection<BoardDocument>("boards");
 
-  // 4. Agora você pode instanciar seu repositório
   const repo = new MongoBoardRepository(boardCollection);
 
   return repo;
